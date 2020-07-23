@@ -10,6 +10,7 @@ namespace fs = std::filesystem;
 int main() {
     Extensions exts;
 
+    // Mapping for extension lists
     std::map<std::string, std::list<std::string>> extensions{
             {"audio",        exts.get_extensions("audio")},
             {"compressed",   exts.get_extensions("compressed")},
@@ -28,6 +29,8 @@ int main() {
             {"text",         exts.get_extensions("text")}
     };
 
+    // Get current path
+    // If current path is not available, the script shuts down
     std::string cwd = fs::current_path();
     if (!cwd.empty())
         std::cout << "Current directory: " << cwd << std::endl;
@@ -40,6 +43,7 @@ int main() {
     std::string file;
     std::list<std::string> file_list;
 
+    // Get only file names from paths and print them
     for (const auto &file_path : fs::directory_iterator(cwd)) {
         if (file_path.is_directory())
             continue;
@@ -52,10 +56,16 @@ int main() {
     std::cout << "File extensions:" << std::endl;
     std::string ext;
 
+    // This loop gets file extensions and sort files in directories depending on extensions
+    // If directory cannot be found, create it in current cwd
     for (auto &item : file_list) {
         ext = item.find_last_of('.') != std::string::npos ? item.substr(item.find_last_of('.')) : "";
 
+        // Search for needed extension in lists
         for (const auto &ext_pair : extensions) {
+            // If extensions is found, choose needed case
+            // All the cases create needed directory if it is not exists and replace needed file in there
+            // The only difference is in file types
             if (std::binary_search(ext_pair.second.cbegin(), ext_pair.second.cend(), ext)) {
                 switch (Extensions::str_hash(ext_pair.first.c_str())) {
                     case Extensions::str_hash("audio"):
@@ -225,6 +235,7 @@ int main() {
                         break;
                 }
 
+                // After replacement, clear extension to sort undefined files
                 fs::remove(fs::path(cwd + "/" + item));
                 item = "";
             }
@@ -233,6 +244,7 @@ int main() {
         ext.empty() ? std::cout << "Undefined extension" << std::endl : std::cout << ext << std::endl;
     }
 
+    // If there are undefined files in list, sort them in Misc directory
     if (std::binary_search(file_list.cbegin(), file_list.cend(), "")) {
         if (!fs::exists(fs::path(cwd + "/Misc"))) {
             std::cout << "Directory: " + cwd + "/Misc does not exist. Creating..." << std::endl;

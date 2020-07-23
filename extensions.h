@@ -4,6 +4,8 @@
 #include <list>
 #include <string>
 
+// Struct to keep extensions
+// You can add, delete or change extensions in lists
 struct Extensions {
 private:
     // Audio file extensions
@@ -55,10 +57,13 @@ private:
             {".doc", ".docx", ".odt", ".pdf", ".rtf", ".tex", ".txt", ".wpd"};
 
 public:
+    // Hash function for strings to use them in switch
     static constexpr unsigned str_hash(const char *str, int hash = 0) {
         return !str[hash] ? 5381 : (str_hash(str, hash + 1) * 33) ^ str[hash];
     }
 
+    // Return extensions list depending on given type
+    // Return empty list if type cannot be found
     std::list<std::string> get_extensions(const std::string &type) {
         std::list<std::string> empty;
 
